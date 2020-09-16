@@ -1,17 +1,25 @@
-node ('master') { 
-        checkout scm 
-        stage('Build') { 
-          withMaven(maven: 'M3') { 
-            if (isUnix()) { 
-              sh 'mvn -Dmaven.test.failure.ignore clean package' 
-            }  
-            else { 
-              bat 'mvn -Dmaven.test.failure.ignore clean package' 
-            } 
-          } 
-        }   
-        stage('Results') { 
-          junit '**/target/surefire-reports/TEST-*.xml' 
-          archive 'target/*.jar' 
-        } 
-      } 
+pipeline {
+    agent any 
+    environment {
+        // Using returnStdout
+        CC = """${sh(
+                returnStdout: true,
+                script: 'echo "clang"'
+            )}""" 
+        // Using returnStatus
+        EXIT_STATUS = """${sh(
+                returnStatus: true,
+                script: 'exit 1'
+            )}"""
+    }
+        stages {
+        stage('Example') {
+            environment {
+                DEBUG_FLAGS = '-g'
+            }
+            steps {
+                sh 'printenv'
+            }
+        }
+    }
+}
